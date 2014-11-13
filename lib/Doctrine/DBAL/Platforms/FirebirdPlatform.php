@@ -78,7 +78,21 @@ class FirebirdPlatform extends AbstractPlatform {
      */
     protected function initializeDoctrineTypeMappings()
     {
-        // TODO: Implement initializeDoctrineTypeMappings() method.
+        $this->doctrineTypeMapping = array(
+            'bigint'          => 'bigint',
+            'char'            => 'string',
+            'varchar'         => 'string',
+            'date'            => 'date',
+            'timestamp'       => 'datetime',
+            'time'            => 'time',
+            'decimal'         => 'decimal',
+            'float'           => 'float',
+            'blob'            => 'blob',
+            'integer'         => 'integer',
+            'numeric'         => 'decimal',
+            'double'          => 'float',
+            'smallint'        => 'smallint',
+        );
     }
 
     /**
@@ -181,7 +195,13 @@ class FirebirdPlatform extends AbstractPlatform {
         return "CREATE GLOBAL TEMPORARY TABLE";
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
+    public function getGuidExpression()
+    {
+        return 'GEN_UUID()';
+    }
 
     /**
      * Gets the name of the platform.

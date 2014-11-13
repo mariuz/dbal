@@ -25,7 +25,7 @@ use Doctrine\DBAL\Driver\PDOConnection;
 use PDOException;
 
 /**
- * PDO MySql driver.
+ * PDO Firebird driver.
  *
  * @since 2.0
  */

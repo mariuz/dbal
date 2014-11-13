@@ -81,7 +81,7 @@ abstract class AbstractFirebirdDriver implements Driver, ExceptionConverterDrive
     {
         $params = $conn->getParams();
 
-        return $params['user'];
+        return $params['dbname'];
     }
 
     /**

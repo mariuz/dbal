@@ -49,6 +49,7 @@ final class DriverManager
          'drizzle_pdo_mysql'  => 'Doctrine\DBAL\Driver\DrizzlePDOMySql\Driver',
          'sqlanywhere'        => 'Doctrine\DBAL\Driver\SQLAnywhere\Driver',
          'sqlsrv'             => 'Doctrine\DBAL\Driver\SQLSrv\Driver',
+         'pdo_firebird'       => 'Doctrine\DBAL\Driver\PDOFirebird\Driver',
     );
 
     /**
@@ -78,6 +79,7 @@ final class DriverManager
      *     sqlsrv
      *     ibm_db2 (unstable)
      *     drizzle_pdo_mysql
+     *     pdo_firebird
      *
      * OR 'driverClass' that contains the full class name (with namespace) of the
      * driver class to instantiate.

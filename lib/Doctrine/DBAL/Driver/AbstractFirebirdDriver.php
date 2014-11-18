@@ -21,7 +21,7 @@ namespace Doctrine\DBAL\Driver;
 
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\FiredbirdPlatform;
+use Doctrine\DBAL\Platforms\FirebirdPlatform;
 use Doctrine\DBAL\Schema\FirebirdSchemaManager;
 
 /**
@@ -89,7 +89,7 @@ abstract class AbstractFirebirdDriver implements Driver, ExceptionConverterDrive
      */
     public function getDatabasePlatform()
     {
-        return new FiredbirdPlatform();
+        return new FirebirdPlatform();
     }
 
     /**

@@ -9,6 +9,11 @@
 namespace Doctrine\DBAL\Platforms;
 
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+
 class FirebirdPlatform extends AbstractPlatform {
 
     /**
@@ -120,28 +125,13 @@ class FirebirdPlatform extends AbstractPlatform {
     }
 
     /**
-     * Returns the SQL to create a sequence on this platform.
-     * @param Sequence $sequence
-     * @return string
+     * {@inheritDoc}
      */
     public function getCreateSequenceSQL(Sequence $sequence)
     {
-        return sprintf('create generator %s', $sequence->getName());
+        return 'CREATE SEQUENCE ' . $sequence->getQuotedName($this);
     }
 
-    /**
-     * Returns the SQL snippet to drop an existing sequence.
-     *
-     * @param \Doctrine\DBAL\Schema\Sequence $sequence
-     *
-     * @return string
-     *
-     * @throws \Doctrine\DBAL\DBALException If not supported on this platform.
-     */
-    public function getDropSequenceSQL($sequence)
-    {
-        return sprintf('drop generator %s', $sequence->getName());
-    }
 
     /**
      * @param string $sequenceName
@@ -152,7 +142,77 @@ class FirebirdPlatform extends AbstractPlatform {
      */
     public function getSequenceNextValSQL($sequenceName)
     {
-        return sprintf('select gen_id(%s, 1 ) from RDB$DATABASE', $sequenceName);
+        return sprintf('SELECT GEN_ID(%S, 1 ) FROM RDB$DATABASE', $sequenceName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTruncateTableSQL($tableName, $cascade = false)
+    {
+        return 'DELETE FROM '.$tableName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function supportsReleaseSavepoints()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function supportsForeignKeyOnUpdate()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getMaxIdentifierLength()
+    {
+        return 30;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fixSchemaElementName($schemaElementName)
+    {
+        if (strlen($schemaElementName) > 30) {
+            return substr($schemaElementName, 0, 30);
+        }
+
+        return $schemaElementName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDateFormatString()
+    {
+        return 'Y-m-d 00:00:00';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTimeFormatString()
+    {
+        return '1900-01-01 H:i:s';
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Firebird returns all column names in SQL result sets in uppercase.
+     */
+    public function getSQLResultCasing($column)
+    {
+        return strtoupper($column);
     }
 
     /**
@@ -163,6 +223,58 @@ class FirebirdPlatform extends AbstractPlatform {
     public function supportsSequences()
     {
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function prefersSequences()
+    {
+        return true;
+    }
+
+    public function getAlterTableSQL(TableDiff $diff)
+    {
+        // TODO: (DF) Implement this
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     */
+    public function getDropDatabaseSQL($database)
+    {
+        // Not supported in Firebird
+        throw DBALException::notSupported(__METHOD__);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDropForeignKeySQL($foreignKey, $table)
+    {
+        if ($foreignKey instanceof ForeignKeyConstraint) {
+            $foreignKey = $foreignKey->getQuotedName($this);
+        }
+
+        if ($table instanceof Table) {
+            $table = $table->getQuotedName($this);
+        }
+
+        return 'ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $foreignKey;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getDropSequenceSQL($sequence)
+    {
+        if ($sequence instanceof Sequence) {
+            $sequence = $sequence->getQuotedName($this);
+        }
+
+        return 'DROP SEQUENCE ' . $sequence;
     }
 
     /**
@@ -177,11 +289,11 @@ class FirebirdPlatform extends AbstractPlatform {
     protected function doModifyLimitQuery($query, $limit, $offset)
     {
         if ($limit !== null) {
-            $query .= ' FIRST ' . $limit;
+            $query .= ' ROWS ' . $limit;
         }
 
         if ($offset !== null) {
-            $query .= ' SKIP ' . $offset;
+            $query .= ' TO ' . $offset;
         }
 
         return $query;

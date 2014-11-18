@@ -27,7 +27,6 @@ use PDOException;
 /**
  * PDO Firebird driver.
  *
- * @since 2.0
  */
 class Driver extends AbstractFirebirdDriver
 {
